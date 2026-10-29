@@ -1,0 +1,10 @@
+<jobs>
+  <!-- Invalid URL preserves 000101's saved data and status. -->
+  <job><id>000101</id><title>Changed title</title><applyUrl>/relative-url</applyUrl></job>
+  <!-- Conflicting valid rows reject DEV-102 as a whole. -->
+  <job><id>DEV-102</id><title>Version A</title><applyUrl>https://example.com/a</applyUrl></job>
+  <job><id>DEV-102</id><title>Version B</title><applyUrl>https://example.com/b</applyUrl></job>
+  <!-- Identical rows import once. -->
+  <job><id>DEV-105</id><title>New job</title><applyUrl>https://example.com/new</applyUrl></job>
+  <job><id>DEV-105</id><title>New job</title><applyUrl>https://example.com/new</applyUrl></job>
+</jobs>

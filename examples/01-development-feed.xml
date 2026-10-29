@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jobs>
+  <job>
+    <id>000101</id>
+    <title>Customer Support Associate</title>
+    <location>Austin, TX</location>
+    <description><![CDATA[<p>Help customers resolve everyday questions at fictional Cedar Lantern Services.</p>]]></description>
+    <applyUrl>https://example.com/jobs/000101</applyUrl>
+  </job>
+  <job>
+    <id>DEV-102</id>
+    <title>Warehouse Coordinator</title>
+    <location>Columbus, OH</location>
+    <description>Coordinate receiving and shipping at fictional Cedar Lantern Services.</description>
+    <applyUrl>https://example.com/jobs/DEV-102</applyUrl>
+  </job>
+  <job>
+    <id>DEV-103</id>
+    <title>Office Assistant</title>
+    <location>Denver, CO</location>
+    <description>Support scheduling and office operations at fictional Cedar Lantern Services.</description>
+    <applyUrl>https://example.com/jobs/DEV-103</applyUrl>
+  </job>
+</jobs>

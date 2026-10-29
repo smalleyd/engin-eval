@@ -1,0 +1,4 @@
+<jobs>
+  <job><id>DEV-999</id><title>Must not be imported</title><applyUrl>https://example.com/999</applyUrl></job>
+  <job><title>Missing ID rejects the entire file</title><applyUrl>https://example.com/bad</applyUrl></job>
+</jobs>

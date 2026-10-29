@@ -3,14 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "A local XML job feed importer with persistent JSON storage",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "start": "npm run build --silent && node dist/cli.js",
+    "build": "tsc",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "format": "prettier --write src test README.md package.json tsconfig.json"
   },
   "devDependencies": {
-    "typescript": "^6.0.3",
+    "@types/node": "^26.6.6",
     "prettier": "^3.9.5",
-    "vite": "^8.1.5"
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "saxes": "^6.0.0"
   }
 }
