@@ -129,7 +129,7 @@ export function importJobs(xml: string, saved: readonly Job[]) {
       accepted.set(job.id, job);
     }
   });
-  for (const id of rejected) accepted.delete(id);
+  for (const id of rejected) accepted.delete(id); // TODO: check to see if a rejected record should remove an accepted record of the same ID.
 
   const counts = { added: 0, updated: 0, unchanged: 0, newlyClosed: 0 };
   const jobs: Job[] = saved.map((previous) => {
@@ -138,7 +138,7 @@ export function importJobs(xml: string, saved: readonly Job[]) {
       accepted.delete(previous.id);
       if (previous.status === 'open' && sameData(previous, incoming)) {
         counts.unchanged++;
-        return { ...previous };
+        return { ...previous }; // Looks like the three period notation unpacks an object into a map.
       }
       counts.updated++;
       return { ...incoming, status: 'open' };
