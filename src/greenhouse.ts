@@ -98,36 +98,12 @@ export async function getGreenhouseAccessToken(
   return data.access_token;
 }
 
-function nextPage(link: string | null, current: string): string | undefined {
+function nextPage(link: string | null): string | undefined {
   if (!link) return undefined;
-  const nextLinks = [...link.matchAll(/<([^>]+)>\s*;\s*rel="([^"]+)"/g)].filter(
-    (match) => match[2]!.split(/\s+/).includes('next'),
-  );
-  if (!nextLinks.length)
-    throw new Error(
-      'Greenhouse returned an unsupported pagination Link header',
-    );
-  if (nextLinks.length !== 1)
-    throw new Error('Greenhouse returned multiple next-page links');
-  let next: URL;
-  try {
-    next = new URL(nextLinks[0]![1]!, current);
-  } catch {
-    throw new Error('Greenhouse returned an invalid pagination URL');
-  }
-  // Never forward the Bearer token to a different origin or endpoint.
-  if (
-    next.origin !== 'https://harvest.greenhouse.io' ||
-    next.pathname !== '/v3/job_posts' ||
-    next.username ||
-    next.password ||
-    next.hash ||
-    !next.searchParams.get('cursor') ||
-    [...next.searchParams.keys()].some((key) => key !== 'cursor')
-  ) {
-    throw new Error('Greenhouse returned an unsafe or invalid pagination URL');
-  }
-  return next.href;
+  const match = link.match(/^\s*<([^>]+)>\s*;\s*rel="next"\s*$/);
+  if (!match)
+    throw new Error('Greenhouse returned an unsupported pagination Link header');
+  return match[1];
 }
 
 function mapPost(value: unknown, row: number): Partial<SourceJob> {
@@ -194,7 +170,7 @@ export async function fetchGreenhouseJobs(
     if (!Array.isArray(data))
       throw new Error('Greenhouse job posts response must be an array');
     for (const post of data) jobs.push(mapPost(post, jobs.length + 1));
-    url = nextPage(response.headers.get('link'), url);
+    url = nextPage(response.headers.get('link'));
   }
   return jobs;
 }

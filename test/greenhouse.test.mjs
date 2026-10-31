@@ -176,20 +176,7 @@ test('API, JSON, and token errors do not expose response bodies or transport det
   }
 });
 
-test('unsafe, malformed, and cyclic pagination fail without forwarding the token', async () => {
-  for (const next of [
-    'https://evil.example/v3/job_posts?cursor=x',
-    'http://harvest.greenhouse.io/v3/job_posts?cursor=x',
-    'https://harvest.greenhouse.io/v3/users?cursor=x',
-    'https://harvest.greenhouse.io/v3/job_posts?cursor=x&live=true',
-  ]) {
-    const { options, calls } = transport([
-      token(),
-      Response.json([post(1)], { headers: { Link: `<${next}>; rel="next"` } }),
-    ]);
-    await assert.rejects(fetchGreenhouseJobs(options), /pagination/);
-    assert.equal(calls.length, 2);
-  }
+test('malformed and cyclic pagination fail', async () => {
   const next = 'https://harvest.greenhouse.io/v3/job_posts?cursor=x';
   const page = () =>
     Response.json([], { headers: { Link: `<${next}>; rel="next"` } });

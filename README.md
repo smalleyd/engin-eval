@@ -84,7 +84,7 @@ for Greenhouse and XML; each import treats its source as the complete snapshot.
 
 Tokens stay in memory for one import. A 401 triggers one token renewal and retry
 of that page; repeated 401s, other HTTP errors (including 429), malformed
-responses, unsafe pagination links, and network failures abort the import and
+responses, malformed pagination headers, and network failures abort the import and
 leave storage unchanged. Requests time out after 30 seconds and do not follow
 redirects. Errors omit response bodies and transport details to avoid exposing
 credentials. Rate limits are reported as failures; rerun after the server's
