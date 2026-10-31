@@ -1,7 +1,8 @@
-# XML job importer
+# Job importer
 
 A Node.js/TypeScript command-line tool that synchronizes a local JSON job list
-with one local XML snapshot per run. No API, credentials, database, or UI.
+with one local XML snapshot or a Greenhouse Harvest API snapshot per run.
+The XML mode needs no API credentials.
 
 ## Setup and run
 
@@ -23,6 +24,86 @@ npm start -- --help
 The output directory must already exist. A missing JSON file starts as an empty
 list. Once built, `node dist/cli.js feed.xml [jobs.json]` avoids recompiling.
 Paths containing spaces should be quoted.
+
+## Greenhouse Harvest v3
+
+Set `GREENHOUSE_CLIENT_ID` and `GREENHOUSE_CLIENT_SECRET` in the environment,
+then run:
+
+```sh
+npm start -- greenhouse
+# Defaults to ./greenhouse-jobs.json
+
+npm start -- greenhouse path/to/greenhouse-jobs.json
+```
+
+For local credentials in `test.env`, compile and use Node's environment loader:
+
+```sh
+npm run build
+node --env-file=test.env dist/cli.js greenhouse
+```
+
+`test.env` is ignored by Git. It should contain these keys with your own values:
+
+```dotenv
+GREENHOUSE_CLIENT_ID=your-client-id
+GREENHOUSE_CLIENT_SECRET=your-client-secret
+```
+
+The module does not load environment files implicitly. Existing process
+environment values take precedence when Node loads `test.env`.
+
+[`src/greenhouse.ts`](src/greenhouse.ts) exports:
+
+- `getGreenhouseAccessToken(options?)`: exchange environment credentials for an
+  access token using POST and HTTP Basic authentication at
+  `https://auth.greenhouse.io/token?grant_type=client_credentials`.
+- `fetchGreenhouseJobs(options?)`: retrieve all pages of active, live, external
+  job posts from `https://harvest.greenhouse.io/v3/job_posts` using the token as
+  Bearer authentication, returning source rows.
+- `importGreenhouseJobs(saved, options?)`: fetch the complete snapshot and apply
+  the same validation, duplicate handling, and reconciliation rules as XML.
+
+Options accept an `env` object and an injectable `fetch` function for testing;
+production defaults are `process.env` and the built-in `fetch`.
+
+Mapping uses **job post** `id` (converted to a string), `title`, `content` as
+description, and `public_url` as apply URL. The parent `job_id` is not the source
+ID: one job can have several posts. The endpoint does not supply a location
+field, so location is `""`. Null content becomes `""`. HTML content is retained.
+A missing title or public URL rejects that ID using the shared validation rules.
+
+The initial request uses `active=true&live=true&internal=false&per_page=500`.
+This makes the local list a snapshot of published external listings. Posts that
+are unpublished, deleted, or changed to internal disappear from that snapshot
+and their saved records close. Pagination follows the exact next cursor URL
+from the `Link` header, without adding filters to subsequent requests. All pages
+must succeed before reconciliation or storage begins. Use a separate saved file
+for Greenhouse and XML; each import treats its source as the complete snapshot.
+
+Tokens stay in memory for one import. A 401 triggers one token renewal and retry
+of that page; repeated 401s, other HTTP errors (including 429), malformed
+responses, unsafe pagination links, and network failures abort the import and
+leave storage unchanged. Requests time out after 30 seconds and do not follow
+redirects. Errors omit response bodies and transport details to avoid exposing
+credentials. Rate limits are reported as failures; rerun after the server's
+rate-limit window rather than relying on automatic retries.
+
+Credentials need the `harvest:job_posts:list` scope and appropriate Greenhouse
+permissions. See the official [token reference](https://harvestdocs.greenhouse.io/reference/generate-token),
+[authentication guide](https://harvestdocs.greenhouse.io/docs/authentication),
+[job posts reference](https://harvestdocs.greenhouse.io/reference/get_v3-job-posts),
+and [pagination guide](https://harvestdocs.greenhouse.io/docs/pagination).
+
+```sh
+npm test
+# Offline tests, including mocked Greenhouse HTTP requests. No credentials needed.
+
+npm run test:greenhouse:live
+# Explicit live check: loads test.env, fetches all pages, prints only a count.
+# Does not read or write a saved job list.
+```
 
 ## Import behavior
 

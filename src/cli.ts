@@ -2,9 +2,10 @@ import { readFile, realpath } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { importJobs } from './importer.js';
 import { loadJobs, saveJobs } from './storage.js';
+import { importGreenhouseJobs } from './greenhouse.js';
 
 const usage =
-  'Usage: npm start -- <feed.xml> [saved-jobs.json]\nDefault saved file: ./jobs.json';
+  'Usage: npm start -- <feed.xml> [saved-jobs.json]\n       npm start -- greenhouse [greenhouse-jobs.json]\nDefault XML saved file: ./jobs.json';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -20,7 +21,10 @@ async function main() {
     throw new Error(usage);
   }
   const input = resolve(args[0]!);
-  const output = resolve(args[1] ?? 'jobs.json');
+  const greenhouse = args[0] === 'greenhouse';
+  const output = resolve(
+    args[1] ?? (greenhouse ? 'greenhouse-jobs.json' : 'jobs.json'),
+  );
   let outputExists = true;
   const existingOutput = await realpath(output).catch(
     (error: NodeJS.ErrnoException) => {
@@ -31,12 +35,16 @@ async function main() {
       throw error;
     },
   );
-  if (input === output || (await realpath(input)) === existingOutput) {
+  if (
+    !greenhouse &&
+    (input === output || (await realpath(input)) === existingOutput)
+  ) {
     throw new Error('Input XML and saved JSON must be different files');
   }
-  const xml = await readFile(input, 'utf8');
   const saved = await loadJobs(output);
-  const result = importJobs(xml, saved);
+  const result = greenhouse
+    ? await importGreenhouseJobs(saved)
+    : importJobs(await readFile(input, 'utf8'), saved);
   // Preserve the file byte-for-byte on no-op runs, but create a missing empty store.
   if (JSON.stringify(saved) !== JSON.stringify(result.jobs) || !outputExists) {
     await saveJobs(output, result.jobs);

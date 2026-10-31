@@ -84,6 +84,14 @@ function sameData(a: SourceJob, b: SourceJob): boolean {
 
 export function importJobs(xml: string, saved: readonly Job[]) {
   const rows = parseRows(xml);
+  return importJobRows(rows, saved);
+}
+
+/** Reconcile a complete source snapshot, independent of its transport format. */
+export function importJobRows(
+  rows: readonly Partial<SourceJob>[],
+  saved: readonly Job[],
+) {
   // Validate all IDs before making any changes, including closures.
   const normalized = rows.map((row, index): SourceJob => {
     const id = row.id?.trim();
