@@ -1,0 +1,47 @@
+<jobs>
+<job>
+<id>007401</id>
+<title>Data Operations Associate</title>
+<location>Remote - United States</location>
+<description>
+<![CDATA[
+<p>Review incoming records at fictional Harbor Kestrel Works.</p><p>Keep source text & formatting intact.</p>
+]]>
+</description>
+<applyUrl>
+https://example.com/jobs/007401?source=xml&team=data
+</applyUrl>
+</job>
+<job>
+<id>JOB-7402</id>
+<title>Customer Success Specialist</title>
+<location>Chicago, IL</location>
+<description>
+<p>Support customer onboarding at fictional Harbor Kestrel Works.</p>
+</description>
+<applyUrl>https://example.com/jobs/JOB-7402</applyUrl>
+</job>
+<job>
+<id>JOB-7403</id>
+<title>Inventory Assistant</title>
+<location>Phoenix, AZ</location>
+<applyUrl>https://example.com/jobs/JOB-7403</applyUrl>
+</job>
+<job>
+<id>JOB-7404</id>
+<title>Scheduling Coordinator</title>
+<description>
+Coordinate appointments at fictional Harbor Kestrel Works.
+</description>
+<applyUrl>https://example.com/jobs/JOB-7404</applyUrl>
+</job>
+<job>
+<id>JOB-7406</id>
+<title/>
+<location>Portland, OR</location>
+<description>
+Help customers troubleshoot technical issues at fictional Harbor Kestrel Works.
+</description>
+<applyUrl>https://example.com/jobs/JOB-7406</applyUrl>
+</job>
+</jobs>
