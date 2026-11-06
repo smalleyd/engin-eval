@@ -8,8 +8,10 @@ export interface SourceJob {
   applyUrl: string;
 }
 
+export type Status = 'open' | 'closed';
+
 export interface Job extends SourceJob {
-  status: 'open' | 'closed';
+  status: Status;
 }
 
 export interface Rejection {
