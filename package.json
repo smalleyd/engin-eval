@@ -12,7 +12,8 @@
     "build": "tsc",
     "test": "npm run build && node --test test/*.test.mjs",
     "test:greenhouse:live": "npm run build --silent && node --env-file=test.env test/greenhouse.live.mjs",
-    "format": "prettier --write src test README.md package.json tsconfig.json"
+    "format": "prettier --write src test README.md package.json tsconfig.json",
+    "fun": "npm run build --silent && node dist/fun.js"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
