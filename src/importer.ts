@@ -21,7 +21,7 @@ export interface Rejection {
 }
 
 const fields = ['id', 'title', 'location', 'description', 'applyUrl'] as const;
-type Field = (typeof fields)[number];
+type Field = (typeof fields)[number]; // https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html
 const isField = (name: string): name is Field =>
   fields.some((field) => field === name);
 

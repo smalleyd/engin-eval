@@ -1,9 +1,35 @@
-import { readFile, rename, unlink, open } from 'node:fs/promises';
-import { dirname, basename, join } from 'node:path';
-import { randomUUID } from 'node:crypto';
-import { type Job, validApplyUrl } from './importer.js';
+// import { readFile, rename, unlink, open } from 'node:fs/promises';
+// import { dirname, basename, join } from 'node:path';
+// import { randomUUID } from 'node:crypto';
+import { type Job, /* validApplyUrl */ } from './importer.js';
+import { Sequelize, Model, DataTypes } from 'sequelize';
 
-export async function loadJobs(path: string): Promise<Job[]> {
+const sequelize: Sequelize = new Sequelize("sqlite:db.lite", {})
+
+const StringType = { type: DataTypes.STRING, allowNull: false };
+
+class Posting extends Model {}
+Posting.init(
+  {
+    id: { ...StringType, primaryKey: true },
+    title: { ...StringType },
+    location: { ...StringType },
+    description: { ...StringType },
+    applyUrl: { ...StringType },
+    status: { ...StringType },
+  },
+  {
+    sequelize,
+    tableName: 'jobs',
+    timestamps: false,
+  },
+);
+
+await sequelize.sync({ alter: true });
+
+export async function loadJobs(_path: string): Promise<Job[]> {
+
+  /*
   let contents: string;
   try {
     contents = await readFile(path, 'utf8');
@@ -42,13 +68,31 @@ export async function loadJobs(path: string): Promise<Job[]> {
     ids.add(job.id);
   }
   return data as Job[];
+
+   */
+  const records = await Posting.findAll();
+
+  return records.map((job) => job.toJSON()) as Job[];
 }
 
 /** Replace only after a complete write; a failed write leaves the old file intact. */
 export async function saveJobs(
-  path: string,
-  jobs: readonly Job[],
+  _path: string,
+  jobs: Job[],  // Removed 'readonly' to assign to records. DLS on 11/6/2026.
 ): Promise<void> {
+
+  sequelize.transaction(async _t => {
+    await Posting.truncate();
+
+    if (!jobs.length) return;
+
+    const records: any[] = jobs;
+    await Posting.bulkCreate(records);
+  }).catch(e => {
+    console.error("SAVE_JOBS failed:", e);
+  });
+
+  /*
   const temporary = join(
     dirname(path),
     `.${basename(path)}.${randomUUID()}.tmp`,
@@ -67,4 +111,6 @@ export async function saveJobs(
       if (error.code !== 'ENOENT') throw error;
     });
   }
+
+   */
 }
